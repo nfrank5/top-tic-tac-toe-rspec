@@ -1,15 +1,14 @@
 class Board 
   attr_reader :board
 
-  def initialize
-    @board = [{ a: ' ', b: ' ', c: ' ' },
-              { a: ' ', b: ' ', c: ' ' },
-              { a: ' ', b: ' ', c: ' ' }
-             ]
+  def initialize(board = [{ a: ' ', b: ' ', c: ' ' },
+                          { a: ' ', b: ' ', c: ' ' },
+                          { a: ' ', b: ' ', c: ' ' }])
+    @board = board
   end
 
-  def update_row(row, column, value)
-    if board[row][column] == ' '
+  def update_space(row, column, value)
+    if row.between?(0, 2) && column.match?(/^[abc]$/) && board[row][column] == ' '
       board[row][column] = value
       return true
     end
@@ -17,10 +16,10 @@ class Board
   end
 
   def check_for_winner
-    check_rows || check_columns || check_diagonals
+    check_winner_rows || check_winner_columns || check_winner_diagonals
   end
 
-  def check_rows
+  def check_winner_rows
     winner = false
     board.each do |row|
       winner = true if  row[:a] == row[:b] &&
@@ -30,7 +29,7 @@ class Board
     winner
   end
 
-  def check_columns
+  def check_winner_columns
     winner = false
     %i[a b c].each do |column|
       winner = true if  board[0][column] == board[1][column] &&
@@ -40,12 +39,11 @@ class Board
     winner
   end
 
-  def check_diagonals
+  def check_winner_diagonals
     winner = false
     winner = true if  board[0][:a] == board[1][:b] &&
                       board[1][:b] == board[2][:c] &&
                       board[0][:a] != ' '
-
     winner = true if  board[0][:c] == board[1][:b] &&
                       board[1][:b] == board[2][:a] &&
                       board[0][:c] != ' '
@@ -54,7 +52,6 @@ class Board
 
   def print_board(ending = false)
     puts 'Place a mark in a free space(for example: A1)' unless ending
-
     puts <<~HEREDOC
           A   B   C
       1   #{@board[0][:a]} | #{@board[0][:b]} | #{@board[0][:c]}
@@ -63,8 +60,7 @@ class Board
         ------------
       3   #{@board[2][:a]} | #{@board[2][:b]} | #{@board[2][:c]}
 
-      HEREDOC
-      
+    HEREDOC
   end
 end
 

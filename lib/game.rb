@@ -1,15 +1,23 @@
 # frozen_string_literal: true
-require './board'
+require_relative './board'
 
 class Game
   attr_reader :current_board
 
   def initialize
-    introduction
     @current_board = Board.new
+    @player_one = ''
+    @player_two = ''
+    @current_player = { name: @player_one, mark: 'X' }
+  end
+
+  def play
+    introduction
     @player_one = get_players('Insert name of player one')
     @player_two = get_players('Insert name of player two')
     @current_player = { name: @player_one, mark: 'X' }
+    placing_marks
+    ending
   end
 
   def introduction
@@ -31,7 +39,7 @@ class Game
       verified_name = user_input if user_input.match?(/^.{3,10}$/) && @player_one != user_input
       return verified_name if verified_name
 
-      puts "Please enter a different name for each player (between 3 and 10 characters)."
+      puts 'Please enter a different name for each player (between 3 and 10 characters).'
     end
   end
 
@@ -39,21 +47,15 @@ class Game
     system('cls') || system('clear')
   end
 
-  def play
-    placing_marks
-    ending
-  end
-
   def placing_marks
-    clear_screen
-    current_board.print_board
+    clear_screen unless ENV['APP_ENV'] == 'test'
+    current_board.print_board  unless ENV['APP_ENV'] == 'test'
     9.times do
       puts "#{@player_one}: is X and #{@player_two} is: O"
-      verified_mark = player_mark_input
-      mark_if_space_free(verified_mark)
+      mark_if_space_free
       break if current_board.check_for_winner
-
-      current_board.print_board
+      clear_screen
+      current_board.print_board 
       @current_player = switch_turn
     end
   end
@@ -69,12 +71,12 @@ class Game
     end
   end
 
-  def mark_if_space_free(verified_mark)
-    clear_screen
-    verified_mark = verified_mark.split('')
+  def mark_if_space_free
     loop do
-      unless current_board.update_row(verified_mark[1].to_i - 1, verified_mark[0].to_sym, @current_player[:mark])
-        current_board.print_board
+      verified_mark = player_mark_input.split('')
+      unless current_board.update_space(verified_mark[1].to_i - 1, verified_mark[0].to_sym, @current_player[:mark])
+        clear_screen unless ENV['APP_ENV'] == 'test'
+        current_board.print_board  unless ENV['APP_ENV'] == 'test'
         puts 'Mark a free space'
         next
       end
@@ -100,5 +102,7 @@ class Game
       puts "It's a draw"
     end
   end
+
+
 end
 
