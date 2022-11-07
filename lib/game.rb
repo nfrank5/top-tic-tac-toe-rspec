@@ -4,8 +4,8 @@ require_relative './board'
 class Game
   attr_reader :current_board
 
-  def initialize
-    @current_board = Board.new
+  def initialize(board = Board.new)
+    @current_board = board
     @player_one = ''
     @player_two = ''
     @current_player = { name: @player_one, mark: 'X' }
@@ -48,12 +48,13 @@ class Game
   end
 
   def placing_marks
-    clear_screen unless ENV['APP_ENV'] == 'test'
-    current_board.print_board  unless ENV['APP_ENV'] == 'test'
+    clear_screen 
+    current_board.print_board  
     9.times do
       puts "#{@player_one}: is X and #{@player_two} is: O"
       mark_if_space_free
       break if current_board.check_for_winner
+      
       clear_screen
       current_board.print_board 
       @current_player = switch_turn
@@ -75,8 +76,8 @@ class Game
     loop do
       verified_mark = player_mark_input.split('')
       unless current_board.update_space(verified_mark[1].to_i - 1, verified_mark[0].to_sym, @current_player[:mark])
-        clear_screen unless ENV['APP_ENV'] == 'test'
-        current_board.print_board  unless ENV['APP_ENV'] == 'test'
+        clear_screen 
+        current_board.print_board
         puts 'Mark a free space'
         next
       end
